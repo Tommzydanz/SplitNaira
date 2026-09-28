@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SplitNaira</string>
+    <string name="CodePushDeploymentKey" translatable="false">xySHsMyEm3OqDBTLfvz_sySTG50MYzNjZTIzZDItMzIxYi00NWUzLWIyOGQtZjRhMjA3NjVjZDky</string>
+    <string name="CodePushServerUrl" translatable="false">https://5f17df723ff9fab5.codepush.bitrise.io</string>
+</resources>
