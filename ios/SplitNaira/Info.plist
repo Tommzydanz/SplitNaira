@@ -56,5 +56,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CodePushDeploymentKey</key>
+	<string>xABT1aq31EFI4w3D7s_dTTWTfSolZGNhZmU0ZDEtYTczZC00NzUwLWE4MWMtZGRlMWIyMGIwZDM3</string>
+	<key>CodePushServerURL</key>
+	<string>https://5f17df723ff9fab5.codepush.bitrise.io</string>
 </dict>
 </plist>

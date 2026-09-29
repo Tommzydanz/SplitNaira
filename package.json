@@ -7,8 +7,8 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./build/index.android.bundle --assets-dest ./build",
-    "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./build/main.jsbundle --assets-dest ./build",
+    "bundle:android": "rm -rf build && react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./build/index.android.bundle --assets-dest ./build",
+    "bundle:ios": "rm -rf build && react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./build/main.jsbundle --assets-dest ./build",
     "codepush:zip": "rm -f update.zip && zip -r update.zip ./build",
     "test": "jest"
   },

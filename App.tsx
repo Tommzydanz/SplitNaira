@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  SafeAreaView,
+  AppState,
+  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -10,6 +11,7 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import codePush from '@bitrise/code-push-sdk';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CURRENCY_SYMBOL = '₦';
 const APP_VERSION = `${DeviceInfo.getVersion()} (${DeviceInfo.getBuildNumber()})`;
@@ -35,12 +37,19 @@ function App(): React.JSX.Element {
   }, [billValue, effectiveTip, people]);
 
   const format = (n: number) => `${CURRENCY_SYMBOL}${n.toFixed(2)}`;
-
   useEffect(() => {
-    // Fully silent update which keeps the app in
-    // sync with the server, without ever
-    // interrupting the end user
-    codePush.sync();
+    const syncOptions = {
+      installMode: codePush.InstallMode.ON_NEXT_RESUME,
+    };
+    codePush.sync(syncOptions);
+
+    const subscription = AppState.addEventListener("change", (newState) => {
+      if (newState === "active") {
+        codePush.sync(syncOptions);
+      }
+    });
+
+    return () => subscription.remove();
   }, []);
 
   return (
@@ -64,6 +73,13 @@ function App(): React.JSX.Element {
 
         <Text style={styles.label}>Tip</Text>
         <View style={styles.tipRow}>
+          <TextInput
+            style={styles.customTipInput}
+            keyboardType="decimal-pad"
+            placeholder="Custom %"
+            value={customTip}
+            onChangeText={setCustomTip}
+          />
           {TIP_PRESETS.map(preset => (
             <TouchableOpacity
               key={preset}
@@ -84,32 +100,24 @@ function App(): React.JSX.Element {
               </Text>
             </TouchableOpacity>
           ))}
-          <TextInput
-            style={styles.customTipInput}
-            keyboardType="decimal-pad"
-            placeholder="Custom %"
-            value={customTip}
-            onChangeText={setCustomTip}
-          />
         </View>
-        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <Text style={styles.label}>Split between</Text>
-          <View style={styles.stepperRow}>
-            <TouchableOpacity
-              style={styles.stepperButton}
-              onPress={() => setPeople(p => Math.max(1, p - 1))}>
-              <Text style={styles.stepperButtonText}>–</Text>
-            </TouchableOpacity>
-            <Text style={styles.stepperValue}>{people}</Text>
-            <TouchableOpacity
-              style={styles.stepperButton}
-              onPress={() => setPeople(p => p + 1)}>
-              <Text style={styles.stepperButtonText}>+</Text>
-            </TouchableOpacity>
-            <Text style={styles.stepperSuffix}>
-              {people === 1 ? 'person' : 'people'}
-            </Text>
-          </View>
+
+        <Text style={styles.label}>Split between</Text>
+        <View style={styles.stepperRow}>
+          <TouchableOpacity
+            style={styles.stepperButton}
+            onPress={() => setPeople(p => Math.max(1, p - 1))}>
+            <Text style={styles.stepperButtonText}>–</Text>
+          </TouchableOpacity>
+          <Text style={styles.stepperValue}>{people}</Text>
+          <TouchableOpacity
+            style={styles.stepperButton}
+            onPress={() => setPeople(p => p + 1)}>
+            <Text style={styles.stepperButtonText}>+</Text>
+          </TouchableOpacity>
+          <Text style={styles.stepperSuffix}>
+            {people === 1 ? 'person' : 'people'}
+          </Text>
         </View>
       </View>
 
@@ -135,9 +143,9 @@ function App(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb', paddingHorizontal: 20, paddingTop: 24 },
-  title: { fontSize: 28, fontWeight: '700', color: '#111827', textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#6b7280', marginTop: 2, marginBottom: 20 },
+  container: { flex: 1, backgroundColor: '#f9fafb', paddingHorizontal: 24, paddingTop: 24, marginTop: Platform.OS === 'ios' ? 40 : 0 },
+  title: { fontSize: 32, fontWeight: '700', color: '#111827', },
+  subtitle: { fontSize: 16, color: '#737881', marginTop: 2, marginBottom: 20 },
   card: {
     backgroundColor: 'white',
     borderRadius: 14,
@@ -182,17 +190,17 @@ const styles = StyleSheet.create({
   stepperValue: { fontSize: 18, fontWeight: '700', color: '#111827', marginHorizontal: 16 },
   stepperSuffix: { color: '#6b7280', marginLeft: 8 },
   resultCard: {
-    backgroundColor: '#5f1bff',
+    backgroundColor: '#0d5d51',
     borderRadius: 14,
     padding: 18,
-    marginTop: 30,
+    marginTop: 16,
   },
   resultRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4 },
   resultLabel: { color: '#9ca3af', fontSize: 14 },
   resultValue: { color: 'white', fontSize: 14, fontWeight: '600' },
-  divider: { height: 1, backgroundColor: '#374151', marginVertical: 8 },
+  divider: { height: 1, backgroundColor: '#f9f9fa', marginVertical: 8 },
   perPersonLabel: { color: 'white', fontSize: 16, fontWeight: '700' },
-  perPersonValue: { color: '#10cba2', fontSize: 22, fontWeight: '800' },
+  perPersonValue: { color: '#c1f005', fontSize: 22, fontWeight: '800' },
   footer: { color: '#9ca3af', fontSize: 12, textAlign: 'center', marginTop: 20 },
 });
 
